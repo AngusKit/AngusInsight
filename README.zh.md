@@ -42,20 +42,41 @@ AngusInsight 是面向企业与中后台产品的轻量用户行为分析，完�
 
 ## 免费获取社区版
 
+约 **250 MB**。本安装包是 **AngusGM + AngusInsight**。至少 **2 核 / 4 GB** 内存、**40 GB** 磁盘（事件量大时再加）。需 Docker Engine 与 Compose v2。
+
+本页路径与官网文档一致：Docker Compose、安装向导、**访问方式 2**（捆绑 Caddy）、HTTP `:80`（无证书）。
+
+1. 先把域名解析到本机（本机试用可写入 `/etc/hosts`）。向导里的 Public DNS name 填**后缀**（如 `example.com`），不要填 `gm.example.com`。
+
 ```bash
-curl -LO https://repo.anguskit.com/raw/raw-public/AngusKit/insight/AngusInsight-Community-1.0.0.zip
-unzip AngusInsight-Community-1.0.0.zip
-cd AngusInsight-1.0.0/docker
-cp env.example .env
-docker compose --profile mysql up -d
+127.0.0.1 gm.example.com insight.example.com
 ```
 
-- 最低配置：**2 核/4 GB**（推荐 4 核/8 GB，事件量大时可上调）；磁盘 40 GB，随事件量增长
-- 安装完成后端口：AngusGM `8801`（登录入口）、AngusInsight `8808`
-- 创建应用并获取 appCode/appKey 后再配置 SDK 采集端点
-- 只需要 AngusInsight？这份 zip 已包含 AngusInsight + AngusGM，无需其它产品。
+放行宿主机 **80**。应用端口由反代回源——不要用 `localhost:8801`。本机已有 Nginx/Caddy/IIS 占用 80 时先停掉。macOS + Docker Desktop 不要给 `./install.sh` 加 `sudo`。
 
-完整安装指南（主机 ZIP、Kubernetes/Helm、TLS、升级、SDK 埋点方案）：**[docs.anguskit.com/insight](https://www.anguskit.com/zh/docs/insight/latest/zh/manual/02-install-deploy)**
+2. 下载、解压，在包根目录跑向导：
+
+```bash
+curl --fail --location --progress-bar -o AngusInsight-Community-1.0.0.zip \
+  https://repo.anguskit.com/raw/raw-public/AngusKit/insight/AngusInsight-Community-1.0.0.zip
+unzip AngusInsight-Community-1.0.0.zip
+cd AngusInsight-1.0.0
+./install.sh
+```
+
+按提示：Install mode `1`（Compose）→ Access **`2`**（捆绑反代，不要回车）→ Proxy `1`（Caddy）→ TLS **`4`**（HTTP `:80`，无证书）→ Database `1`（Compose 内 MySQL 8）→ Public DNS name = `example.com` → 设置管理员密码（默认用户 `admin`）。等到终端出现 `Install finished.`。
+
+3. 确认健康后再打开控制台：
+
+```bash
+./bin/angusctl.sh doctor
+```
+
+输出包含 `doctor: OK`。打开 `http://gm.example.com/` 登录，再打开 `http://insight.example.com/`。本路径采集地址：`http://insight.example.com/pubapi/v1/collect`。
+
+需要一次装齐？用 [AngusKit](https://github.com/AngusKit/AngusKit) 的 `AngusKit-Community-1.0.0.zip`。
+
+第一次跑通：**[insight 快速开始](https://www.anguskit.com/zh/docs/insight/get-started/quickstart)** · 完整安装（主机 ZIP、Helm 预览、TLS、离线）：**[安装文档](https://www.anguskit.com/zh/docs/insight/latest/zh/manual/02-install-deploy)**
 
 ## 社区版 vs 团队版/企业版
 
@@ -68,7 +89,7 @@ docker compose --profile mysql up -d
 | 漏斗、路径分析、高级错误规则、MCP | 不含 | 包含 |
 | 交付形态 | 仅私有化部署 | 仅私有化部署 |
 
-社区版源码使用 GPL-3.0 协议，随社区版安装包一同分发。团队版与企业版为专有软件，受 **XCan Business License, Version 1.0** 约束，仅随付费订阅提供。
+社区版源码使用 GPL-3.0 协议，随社区版安装包一同分发。团队版与企业版为专有软件，受 **[XCan Business License, Version 1.0](https://www.anguskit.com/licenses/XCBL-1.0)**（XCBL-1.0）约束，仅随付费订阅提供。
 
 完整定价与功能对照：**[anguskit.com/pricing](https://www.anguskit.com/zh/pricing)**
 
@@ -93,4 +114,4 @@ docker compose --profile mysql up -d
 
 - 本仓库文档内容：见 [LICENSE](LICENSE)（GPL-3.0，与其描述的社区版源码保持一致）。
 - AngusInsight 社区版产品源码：GPL-3.0，随每个社区版安装包分发。
-- AngusInsight 团队版/企业版：专有软件，XCan Business License v1.0，仅随付费订阅提供。
+- AngusInsight 团队版/企业版：专有软件，[XCan Business License, Version 1.0](LICENSE-XCBL-1.0)（XCBL-1.0）— 详见 https://www.anguskit.com/licenses/XCBL-1.0，仅随付费订阅提供。

@@ -42,20 +42,41 @@ AngusInsight is lightweight user-behavior analytics for enterprise and internal 
 
 ## Get the Community Edition (free)
 
+About **250 MB**. This zip is **AngusGM + AngusInsight**. At least **2 cores / 4 GB** RAM and **40 GB** disk (more when event volume is high). Docker Engine + Compose v2.
+
+This first-run path matches the official docs: Docker Compose, the install wizard, **access mode 2** (bundled Caddy), HTTP `:80` (no certificate).
+
+1. Resolve names to this machine (or add to `/etc/hosts` for a local trial). Public DNS name in the wizard is the **suffix** (e.g. `example.com`), not `gm.example.com`.
+
 ```bash
-curl -LO https://repo.anguskit.com/raw/raw-public/AngusKit/insight/AngusInsight-Community-1.0.0.zip
-unzip AngusInsight-Community-1.0.0.zip
-cd AngusInsight-1.0.0/docker
-cp env.example .env
-docker compose --profile mysql up -d
+127.0.0.1 gm.example.com insight.example.com
 ```
 
-- Minimum: **2 cores / 4 GB** (recommended: 4 cores / 8 GB, more as event volume grows); disk 40 GB, more as events accumulate
-- Ports after install: AngusGM `8801` (sign-in), AngusInsight `8808`
-- Configure the SDK collect endpoint only after you create an app and obtain an appCode/appKey
-- Only need AngusInsight? This zip includes AngusInsight + AngusGM — no other product required.
+Open host **80**. App ports stay behind the proxy — do not use `localhost:8801`. Stop Nginx/Caddy/IIS if they already bind 80. On macOS + Docker Desktop, do not run `./install.sh` with `sudo`.
 
-Full installation guide (host ZIP, Kubernetes/Helm, TLS, upgrades, SDK tracking plan): **[docs.anguskit.com/insight](https://www.anguskit.com/en/docs/insight/latest/en/manual/02-install-deploy)**
+2. Download, unzip, and run the wizard from the package root:
+
+```bash
+curl --fail --location --progress-bar -o AngusInsight-Community-1.0.0.zip \
+  https://repo.anguskit.com/raw/raw-public/AngusKit/insight/AngusInsight-Community-1.0.0.zip
+unzip AngusInsight-Community-1.0.0.zip
+cd AngusInsight-1.0.0
+./install.sh
+```
+
+Answer: Install mode `1` (Compose) → Access **`2`** (bundled reverse proxy — do not press Enter) → Proxy `1` (Caddy) → TLS **`4`** (HTTP `:80`, no certificate) → Database `1` (MySQL 8 in Compose) → Public DNS name = `example.com` → set admin password (default user `admin`). Wait for `Install finished.`
+
+3. Confirm health, then open the console:
+
+```bash
+./bin/angusctl.sh doctor
+```
+
+Look for `doctor: OK`. Open `http://gm.example.com/`, sign in, then open `http://insight.example.com/`. Collect URL on this path: `http://insight.example.com/pubapi/v1/collect`.
+
+Need the full suite? Use `AngusKit-Community-1.0.0.zip` from [AngusKit](https://github.com/AngusKit/AngusKit).
+
+First-run guide: **[insight quickstart](https://www.anguskit.com/en/docs/insight/get-started/quickstart)** · Full install (host ZIP, Helm preview, TLS, offline): **[install docs](https://www.anguskit.com/en/docs/insight/latest/en/manual/02-install-deploy)**
 
 ## Community vs. Team / Enterprise
 
@@ -68,7 +89,7 @@ Full installation guide (host ZIP, Kubernetes/Helm, TLS, upgrades, SDK tracking 
 | Funnels, path analysis, advanced error rules, MCP | Not included | Included |
 | Delivery model | Private deployment only | Private deployment only |
 
-Community Edition source is licensed under GPL-3.0 and distributed with each Community installation package. Team and Enterprise editions are proprietary, governed by the **XCan Business License, Version 1.0**, distributed only under a paid subscription.
+Community Edition source is licensed under GPL-3.0 and distributed with each Community installation package. Team and Enterprise editions are proprietary, governed by the **[XCan Business License, Version 1.0](https://www.anguskit.com/licenses/XCBL-1.0)** (XCBL-1.0), distributed only under a paid subscription.
 
 Full pricing and feature comparison: **[anguskit.com/pricing](https://www.anguskit.com/en/pricing)**
 
@@ -93,4 +114,4 @@ Full pricing and feature comparison: **[anguskit.com/pricing](https://www.angusk
 
 - This repository's documentation content: see [LICENSE](LICENSE) (GPL-3.0, matching the Community Edition source it describes).
 - AngusInsight Community Edition product source: GPL-3.0, distributed with each Community installation package.
-- AngusInsight Team / Enterprise Edition: proprietary, XCan Business License v1.0, distributed under a paid subscription only.
+- AngusInsight Team / Enterprise Edition: proprietary, [XCan Business License, Version 1.0](LICENSE-XCBL-1.0) (XCBL-1.0) — see https://www.anguskit.com/licenses/XCBL-1.0. Distributed under a paid subscription only.
